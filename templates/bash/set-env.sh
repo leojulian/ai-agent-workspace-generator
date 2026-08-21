@@ -19,7 +19,7 @@ aawt_load_env() {
 	AAWT_INTERNAL_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 	AAWT_INTERNAL_FILE="$AAWT_INTERNAL_ROOT/.env"
 	if [[ ! -f "$AAWT_INTERNAL_FILE" ]]; then
-		printf '[failed] .env not found; run setup-workspace.sh first\n' >&2
+		printf '[failed] .env not found; run set-workspace.sh first\n' >&2
 		return 1
 	fi
 
@@ -48,7 +48,7 @@ aawt_load_env() {
 	for ((AAWT_INTERNAL_INDEX = 0; AAWT_INTERNAL_INDEX < ${#AAWT_INTERNAL_KEYS[@]}; AAWT_INTERNAL_INDEX += 1)); do
 		AAWT_INTERNAL_KEY=${AAWT_INTERNAL_KEYS[AAWT_INTERNAL_INDEX]}
 		printf -v "$AAWT_INTERNAL_KEY" '%s' "${AAWT_INTERNAL_VALUES[AAWT_INTERNAL_INDEX]}"
-		export "$AAWT_INTERNAL_KEY"
+		export "${AAWT_INTERNAL_KEY?}"
 	done
 	printf '[loaded] %d environment variables\n' "${#AAWT_INTERNAL_KEYS[@]}"
 	return 0

@@ -5,7 +5,6 @@ if not "%~1"=="" (
     exit /b 2
 )
 
-set "AAWT_INTERNAL_ROOT=%~dp0"
 set "AAWT_INTERNAL_FILE=%~dp0.env"
 set "AAWT_INTERNAL_INVALID_LINE="
 set "AAWT_INTERNAL_COUNT=0"
@@ -28,15 +27,13 @@ for /f "usebackq eol=# tokens=1,* delims==" %%A in ("%AAWT_INTERNAL_FILE%") do (
 )
 
 echo [loaded] %AAWT_INTERNAL_COUNT% environment variables
-set "AAWT_INTERNAL_ROOT="
 set "AAWT_INTERNAL_FILE="
 set "AAWT_INTERNAL_INVALID_LINE="
 set "AAWT_INTERNAL_COUNT="
 exit /b 0
 
 :missing
-echo [failed] .env not found; run setup-workspace.bat first
-set "AAWT_INTERNAL_ROOT="
+echo [failed] .env not found; run set-workspace.bat first
 set "AAWT_INTERNAL_FILE="
 set "AAWT_INTERNAL_INVALID_LINE="
 set "AAWT_INTERNAL_COUNT="
@@ -44,7 +41,6 @@ exit /b 1
 
 :invalid
 echo [failed] invalid dotenv syntax at line %AAWT_INTERNAL_INVALID_LINE%
-set "AAWT_INTERNAL_ROOT="
 set "AAWT_INTERNAL_FILE="
 set "AAWT_INTERNAL_INVALID_LINE="
 set "AAWT_INTERNAL_COUNT="

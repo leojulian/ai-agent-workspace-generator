@@ -1,7 +1,6 @@
-.env
-.env.*
-!.env.example
-AGENTS.local.md
+/.env
+/.env.*
+/AGENTS.local.md
 
 .DS_Store
 Thumbs.db

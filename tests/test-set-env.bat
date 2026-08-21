@@ -3,7 +3,7 @@ setlocal EnableExtensions
 for %%I in ("%~dp0..") do set "ROOT=%%~fI"
 set "CASE_DIR=%TEMP%\aawt-set-env-%RANDOM%-%RANDOM%"
 mkdir "%CASE_DIR%" || exit /b 1
-copy /y "%ROOT%\set-env.bat" "%CASE_DIR%\set-env.bat" >nul || goto :fail
+copy /y "%ROOT%\templates\windows\set-env.bat" "%CASE_DIR%\set-env.bat" >nul || goto :fail
 >"%CASE_DIR%\.env" (
     echo # synthetic test data
     echo TEST_API_KEY=test-only-value
@@ -28,10 +28,10 @@ call "%CASE_DIR%\set-env.bat" unexpected-argument >nul 2>&1
 if not "%ERRORLEVEL%"=="2" goto :fail
 
 rmdir /s /q "%CASE_DIR%"
-echo [PASS] Windows environment loader
+echo [PASS] Windows environment loader template
 exit /b 0
 
 :fail
 if exist "%CASE_DIR%" rmdir /s /q "%CASE_DIR%"
-echo [FAIL] Windows environment loader
+echo [FAIL] Windows environment loader template
 exit /b 1

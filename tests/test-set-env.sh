@@ -3,7 +3,7 @@ set -euo pipefail
 root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 case_dir=$(mktemp -d)
 trap 'rm -rf -- "$case_dir"' EXIT
-cp -- "$root/set-env.sh" "$case_dir/set-env.sh"
+cp -- "$root/templates/bash/set-env.sh" "$case_dir/set-env.sh"
 cat >"$case_dir/.env" <<'TEST_ENV'
 # synthetic test data
 TEST_API_KEY=test-only-value
@@ -41,4 +41,4 @@ source "$case_dir/set-env.sh" unexpected-argument >/dev/null 2>&1
 argument_status=$?
 set -e
 [[ $argument_status == 2 ]]
-printf '[PASS] Bash environment loader\n'
+printf '[PASS] Bash environment loader template\n'
