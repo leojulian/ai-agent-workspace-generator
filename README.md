@@ -42,19 +42,32 @@ Linux、WSL 或 macOS Bash：
 ```text
 Workspace parent directory: <workspace-parent>
 Workspace name: my-workspace
+Rule documents language [en/zh-CN] (en):
 ```
 
-也可以直接传入两个参数：
+首次语言提示直接回车或未提供答案时，使用默认的英文规则文档。输入不支持的语言后会重新提示，重试必须明确输入有效语言；空行或 EOF 会以退出码 `2` 结束，且不创建工作区。
+
+也可以直接传入参数：
 
 ```bat
 set-workspace.bat "<workspace-parent>" my-workspace
+set-workspace.bat "<workspace-parent>" my-workspace zh-CN
 ```
 
 ```bash
 ./set-workspace.sh "<workspace-parent>" my-workspace
+./set-workspace.sh "<workspace-parent>" my-workspace zh-CN
 ```
 
-父目录不存在时会自动创建。工作区名称必须是单个目录名，不能包含路径分隔符，也不能是 `.` 或 `..`。
+父目录不存在时会自动创建。工作区名称必须是单个目录名，不能包含路径分隔符，也不能是 `.` 或 `..`。省略第三个参数或传入空字符串时不会提示，直接使用英文规则文档，因此脚本和自动化调用保持原有行为。
+
+规则文档语言接受以下取值（不区分大小写）：
+
+| 取值 | 结果 |
+| --- | --- |
+| `en`、`en-US`、`english` | 英文规则文档（默认） |
+| `zh-CN`、`zh`、`zh-Hans`、`chinese` | 简体中文规则文档 |
+| 其他取值 | 参数模式报错退出；交互模式按上述规则重试 |
 
 ### 3. 填写本地工作区规则
 
@@ -132,9 +145,37 @@ my-workspace/
 
 Bash 入口生成同样的文件，但使用 `set-env.sh` 替代 `set-env.bat`。
 
+`AGENTS.md`、`AGENTS.local.md`、`CLAUDE.md` 和 `GEMINI.md` 这四份规则文档来自所选语言版本，但始终使用标准文件名；`.env` 和 `set-env` 与语言无关。
+
 目标工作区不会包含工具仓库的 README、测试、另一平台的 loader，也不会初始化根 Git。已有目录和文件只会被保留；生成器只创建缺失文件，不覆盖规则、`.env`、loader 或项目内容。
 
 如果目标工作区已经存在 `AGENTS.md`，生成器会保留它并输出提示。请人工确认该文件会继续加载 `AGENTS.local.md` 和更近的项目级 `AGENTS.md`。
+
+## 规则文档语言
+
+工具仓库为四份规则文档各提供英文和简体中文两个版本：
+
+| 语言 | 取值 | 模板位置 |
+| --- | --- | --- |
+| 英文 | `en`（默认） | `templates/common/AGENTS.md` 等四份 |
+| 简体中文 | `zh-CN` | 仓库根目录 `AGENTS.cn.md`、`AGENTS.local.cn.md`、`CLAUDE.cn.md`、`GEMINI.cn.md` |
+
+中文版本带 `cn` 后缀放在仓库根目录，与英文模板一一对应：
+
+| 英文模板 | 中文模板 |
+| --- | --- |
+| `templates/common/AGENTS.md` | `AGENTS.cn.md` |
+| `templates/common/AGENTS.local.md` | `AGENTS.local.cn.md` |
+| `templates/common/CLAUDE.md` | `CLAUDE.cn.md` |
+| `templates/common/GEMINI.md` | `GEMINI.cn.md` |
+
+仓库根目录的 `AGENTS.md`、`CLAUDE.md` 和 `GEMINI.md` 是本工具仓库自己的 Agent 规则，不是生成工作区用的模板；只有带 `.cn.md` 后缀的文件属于模板。
+
+两个版本表达同一套规则：标题结构、约束强度和边界完全对应，只是语言不同。生成工作区时只会写入所选语言的一套文档，并且始终使用标准文件名（`AGENTS.md`、`AGENTS.local.md`、`CLAUDE.md`、`GEMINI.md`），工作区内不会出现 `.cn.md` 文件。
+
+生成器在成功时输出 `[language] rule documents: <取值>`，便于确认实际使用的版本。工作区生成后如需切换语言，请手动替换这四份文档，或在另一个目录重新生成工作区；生成器不会覆盖已存在的文件。
+
+修改任一语言版本时，必须同步另一语言版本，并保持标题结构一致；工具仓库的 `tests/test-public-contract.sh` 会检查两侧标题数量是否相同。
 
 ## 规则层级
 
@@ -147,6 +188,8 @@ Bash 入口生成同样的文件，但使用 `set-env.sh` 替代 `set-env.bat`�
 | 项目 `AGENTS.md` | 项目构建、测试、架构和编码要求 |
 | 模块 `AGENTS.md` | 特定模块或目录的局部约束 |
 | `CLAUDE.md` / `GEMINI.md` | 引导对应工具读取共享规则，不重复保存规则正文 |
+
+以上文件在英文和简体中文两个版本中层级完全一致，工作区只会包含所选语言的一套文档。
 
 处理项目文件时，Agent 应按以下范围读取规则：
 

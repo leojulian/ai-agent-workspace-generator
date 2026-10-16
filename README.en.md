@@ -42,19 +42,32 @@ The script asks for:
 ```text
 Workspace parent directory: <workspace-parent>
 Workspace name: my-workspace
+Rule documents language [en/zh-CN] (en):
 ```
 
-You can also pass both values directly:
+At the first language prompt, pressing Enter or providing no answer uses the default English rule documents. An unsupported language triggers another prompt, and a retry must explicitly provide a supported language. An empty retry or EOF exits with code `2` without creating a workspace.
+
+You can also pass the values directly:
 
 ```bat
 set-workspace.bat "<workspace-parent>" my-workspace
+set-workspace.bat "<workspace-parent>" my-workspace zh-CN
 ```
 
 ```bash
 ./set-workspace.sh "<workspace-parent>" my-workspace
+./set-workspace.sh "<workspace-parent>" my-workspace zh-CN
 ```
 
-The parent directory is created when necessary. The workspace name must be a single directory name; it cannot contain path separators or equal `.` or `..`.
+The parent directory is created when necessary. The workspace name must be a single directory name; it cannot contain path separators or equal `.` or `..`. When the third argument is omitted or empty, the script does not prompt and uses the English rule documents, so scripts and automated calls keep their previous behavior.
+
+The rule-document language accepts these values, case-insensitively:
+
+| Value | Result |
+| --- | --- |
+| `en`, `en-US`, `english` | English rule documents (default) |
+| `zh-CN`, `zh`, `zh-Hans`, `chinese` | Simplified Chinese rule documents |
+| anything else | Error exit in argument mode; retry as described above in interactive mode |
 
 ### 3. Fill in local workspace rules
 
@@ -132,9 +145,37 @@ my-workspace/
 
 The Bash entry point creates the same files but uses `set-env.sh` instead of `set-env.bat`.
 
+The four rule documents `AGENTS.md`, `AGENTS.local.md`, `CLAUDE.md`, and `GEMINI.md` come from the selected language version but always keep the canonical file names. `.env` and the `set-env` loader are language-independent.
+
 The target workspace does not include this repository's README files, tests, or loader for the other platform, and it does not initialize a Git repository at the workspace root. Existing directories and files are preserved. The generator creates missing files only and does not overwrite rules, `.env`, loader scripts, or project content.
 
 When the target workspace already contains `AGENTS.md`, the generator preserves it and prints a notice. Verify manually that the existing file loads `AGENTS.local.md` and nearer project-level `AGENTS.md` files.
+
+## Rule document language
+
+This repository provides the four rule documents in both English and Simplified Chinese:
+
+| Language | Value | Template location |
+| --- | --- | --- |
+| English | `en` (default) | `templates/common/AGENTS.md` and the other three |
+| Simplified Chinese | `zh-CN` | Repository root: `AGENTS.cn.md`, `AGENTS.local.cn.md`, `CLAUDE.cn.md`, `GEMINI.cn.md` |
+
+The Chinese versions live in the repository root with a `cn` suffix and map one-to-one to the English templates:
+
+| English template | Chinese template |
+| --- | --- |
+| `templates/common/AGENTS.md` | `AGENTS.cn.md` |
+| `templates/common/AGENTS.local.md` | `AGENTS.local.cn.md` |
+| `templates/common/CLAUDE.md` | `CLAUDE.cn.md` |
+| `templates/common/GEMINI.md` | `GEMINI.cn.md` |
+
+`AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` in the repository root are this tool repository's own agent rules, not templates for generated workspaces; only the `.cn.md` files are templates.
+
+Both versions express the same rules: heading structure, constraint strength, and boundaries correspond exactly; only the language differs. A generated workspace receives one language set only, always under the canonical file names (`AGENTS.md`, `AGENTS.local.md`, `CLAUDE.md`, `GEMINI.md`); `.cn.md` files never appear in a generated workspace.
+
+On success the generator prints `[language] rule documents: <value>` so the version in use is explicit. To change the language of an existing workspace, replace the four documents manually or generate a new workspace elsewhere; the generator does not overwrite existing files.
+
+Whenever one language version changes, update the other one in the same change and keep the heading structure identical. `tests/test-public-contract.sh` verifies that both sides have the same number of headings.
 
 ## Rule hierarchy
 
@@ -147,6 +188,8 @@ Rule files have separate scopes:
 | Project `AGENTS.md` | Project build, test, architecture, and coding requirements |
 | Module `AGENTS.md` | Local constraints for a specific module or directory |
 | `CLAUDE.md` / `GEMINI.md` | Direct their tools to shared rules without duplicating policy text |
+
+Both language versions provide the identical hierarchy; a workspace contains the documents of one language only.
 
 When working on a project file, an agent should load rules in this order:
 
