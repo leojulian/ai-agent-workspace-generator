@@ -2,6 +2,7 @@
 setlocal EnableExtensions DisableDelayedExpansion
 set "AAWT_INTERNAL_ROOT=%~dp0"
 set "AAWT_INTERNAL_FAILED=0"
+set "AAWT_INTERNAL_RULES_PREFIX=templates\common\"
 
 if "%~1"=="" goto :interactive
 if "%~2"=="" goto :usage
@@ -52,8 +53,6 @@ if not "%AAWT_INTERNAL_NAME:/=%"=="%AAWT_INTERNAL_NAME%" goto :invalid_name
 
 call :require_template "%AAWT_INTERNAL_RULES_PREFIX%AGENTS%AAWT_INTERNAL_RULES_SUFFIX%.md"
 call :require_template "%AAWT_INTERNAL_RULES_PREFIX%AGENTS.local%AAWT_INTERNAL_RULES_SUFFIX%.md"
-call :require_template "%AAWT_INTERNAL_RULES_PREFIX%CLAUDE%AAWT_INTERNAL_RULES_SUFFIX%.md"
-call :require_template "%AAWT_INTERNAL_RULES_PREFIX%GEMINI%AAWT_INTERNAL_RULES_SUFFIX%.md"
 call :require_template "templates\common\env.template"
 call :require_template "templates\windows\set-env.bat"
 if not "%AAWT_INTERNAL_FAILED%"=="0" exit /b 1
@@ -69,8 +68,6 @@ if not exist "%AAWT_INTERNAL_TARGET%" (
 
 call :copy_if_missing "%AAWT_INTERNAL_RULES_PREFIX%AGENTS%AAWT_INTERNAL_RULES_SUFFIX%.md" "AGENTS.md"
 call :copy_if_missing "%AAWT_INTERNAL_RULES_PREFIX%AGENTS.local%AAWT_INTERNAL_RULES_SUFFIX%.md" "AGENTS.local.md"
-call :copy_if_missing "%AAWT_INTERNAL_RULES_PREFIX%CLAUDE%AAWT_INTERNAL_RULES_SUFFIX%.md" "CLAUDE.md"
-call :copy_if_missing "%AAWT_INTERNAL_RULES_PREFIX%GEMINI%AAWT_INTERNAL_RULES_SUFFIX%.md" "GEMINI.md"
 call :copy_if_missing "templates\common\env.template" ".env"
 call :copy_if_missing "templates\windows\set-env.bat" "set-env.bat"
 if "%AAWT_INTERNAL_FAILED%"=="0" (
@@ -100,14 +97,12 @@ exit /b 2
 :normalize_language_en
 endlocal
 set "AAWT_INTERNAL_LANGUAGE=en"
-set "AAWT_INTERNAL_RULES_PREFIX=templates\common\"
 set "AAWT_INTERNAL_RULES_SUFFIX="
 exit /b 0
 
 :normalize_language_zh
 endlocal
 set "AAWT_INTERNAL_LANGUAGE=zh-CN"
-set "AAWT_INTERNAL_RULES_PREFIX="
 set "AAWT_INTERNAL_RULES_SUFFIX=.cn"
 exit /b 0
 

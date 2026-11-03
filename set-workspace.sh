@@ -71,16 +71,16 @@ if [[ -z $workspace_name || $workspace_name == . || $workspace_name == .. || $wo
 fi
 
 common_dir="$root/templates/common"
-rule_documents=(AGENTS.md AGENTS.local.md CLAUDE.md GEMINI.md)
+rule_documents=(AGENTS.md AGENTS.local.md)
 platform_loader="$root/templates/bash/set-env.sh"
 
-# English rule documents live in templates/common; the Chinese ones live in the
-# repository root with a .cn.md suffix.
+# Both rule-document languages live in templates/common; Chinese templates
+# use a .cn.md suffix while generated files keep the canonical names.
 rule_source_path() {
 	if [[ $language == en ]]; then
 		printf '%s/%s' "$common_dir" "$1"
 	else
-		printf '%s/%s.cn.md' "$root" "${1%.md}"
+		printf '%s/%s.cn.md' "$common_dir" "${1%.md}"
 	fi
 }
 

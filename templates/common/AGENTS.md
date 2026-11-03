@@ -70,6 +70,7 @@ This file defines the agent's language, behavior, workspace operations, and deli
 - Follow the target project's requirements for focused builds, tests, or behavior checks. Start with the affected scope and expand verification as necessary; do not build every independent project from the workspace root without a reason.
 - If hardware, external services, credentials, permissions, or platform capabilities are missing, first finish the parts that can be implemented and verified independently. Report the blocker, completed work, unverified scope, and remaining risks. Do not claim unverified functionality passed.
 - If repeated fixes do not resolve the same problem, reexamine the error evidence and original assumptions. Do not make unsupported repeated changes or retry indefinitely. End implementation only when the acceptance conditions are met, the user terminates the task, or an unresolvable blocker exists.
+- Test the real implementation. Do not copy the business logic into the tests. Use mocks as little as possible.
 - Do not use mocks, test doubles, fake implementations, or workarounds to fabricate verification, conceal defects, bypass required real integration verification, or change production behavior solely to pass tests.
 - Unit tests may use narrowly scoped mocks, stubs, fakes, or other test doubles to isolate dependencies. Verify the real logic of the code under test and identify the replaced dependencies and uncovered real behaviors.
 - Integration tests, end-to-end tests, and real-environment verification must use actual components appropriate to their respective verification goals. Do not claim that results obtained with test doubles establish successful real-environment verification.
@@ -77,14 +78,21 @@ This file defines the agent's language, behavior, workspace operations, and deli
 - Do not manufacture a passing conclusion by deleting tests, weakening assertions, hiding failures, or fabricating results.
 - Base every edit on the current file contents. The user may change or undo agent edits at any time. Reread the file when an earlier edit can no longer be continued.
 - Do not reintroduce content the user deleted. Preserve existing changes and the user's decisions to undo edits.
-- Do not roll back any code with Git unless the user explicitly requests Git-based restoration. When the user says "roll back" without specifying Git, use file-editing tools to manually restore the previous state.
-- Manual restoration must also preserve user changes outside the current task's scope.
 - When the user provides a web link as a basis for the task, visit it and read the complete task-relevant sections, necessary context, and applicable restrictions. Do not infer its contents solely from its title or a search snippet.
 - If a third-party library or API has been used incorrectly, recheck the official documentation, interface contract, and relevant examples for the corresponding version. If the material is inaccessible, incomplete, or for a different version, state the limitation and do not claim it has been verified.
 - Use the corresponding tools when the user explicitly requests image analysis, screenshot inspection, visual verification, or interface automation. If an interface change requires visual evidence to establish correctness, screenshots and visual inspection are allowed within the existing task authorization.
 - Do not access screen content, private images, or other sensitive visual information unrelated to the task. Visual inspection does not replace required functional tests.
 - Without authorization, do not proactively read, modify, or clean up temporary files unrelated to the current task, including content of unknown origin under `/tmp`.
 - Store intermediate artifacts in the project's designated temporary directory or an isolated working directory, following the project's ignore rules. Do not pollute formal deliverables or accidentally include artifacts in version control. Allow tools to use system temporary directories normally, but do not proactively scan, overwrite, or clean up files of unknown origin.
+
+### 3.4 General implementation and testing rules
+
+- Do not add complexity for imagined race conditions or security edge cases that are almost certain not to occur. If you believe it is necessary, first explain exactly what could go wrong, how likely it is, and how much additional code it would require. Proceed only after I approve. Do not silently expand the scope of the changes.
+- Validate data coming from outside only once, at the entry boundary. Pass values whose types are already established into the internal logic; do not repeat defensive checks internally.
+- Do not prematurely extract functions that are used only once. Extract them only if they will be reused, encapsulate genuinely complex logic, or represent a concept that can be given a clear name.
+- Keep only the happy path in the main function; put validation and details in small functions below it.
+- Write comments only for non-obvious constraints and counterintuitive behavior. Do not comment on obvious code.
+- Follow the repository's existing workflows. Do not introduce tools or workflows that the repository does not already use.
 
 ## 4. Workspace and project operations
 
@@ -116,6 +124,8 @@ This file defines the agent's language, behavior, workspace operations, and deli
 
 - Do not commit, push, merge, switch branches, or update an entire working copy without explicit authorization.
 - Never run any form of `git rebase`.
+- Do not roll back any code with Git unless the user explicitly requests Git-based restoration. When the user says "roll back" without specifying Git, use file-editing tools to manually restore the previous state.
+- Manual restoration must also preserve user changes outside the current task's scope.
 - Keep version-control operations within the confirmed project, branch, and target-file scope.
 - Before an authorized commit, review status, every target file, the complete diff, verification results, and possible secrets.
 - List commit targets explicitly and commit only reviewed, specified files. Do not implicitly include unknown content.

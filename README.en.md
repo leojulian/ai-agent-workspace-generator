@@ -11,7 +11,7 @@ Git repositories, SVN working copies, experiments, and other projects inside the
 This tool is a good fit when:
 
 - one directory needs to contain multiple independent projects;
-- Codex, Claude Code, Gemini CLI, or other agents need the same cross-project rules;
+- agents that read `AGENTS.md` need the same cross-project rules;
 - development moves between Windows, WSL, and Linux; or
 - the project map, organization workflows, and machine constraints must stay local.
 
@@ -137,15 +137,13 @@ The Windows entry point creates:
 my-workspace/
   AGENTS.md
   AGENTS.local.md
-  CLAUDE.md
-  GEMINI.md
   .env
   set-env.bat
 ```
 
 The Bash entry point creates the same files but uses `set-env.sh` instead of `set-env.bat`.
 
-The four rule documents `AGENTS.md`, `AGENTS.local.md`, `CLAUDE.md`, and `GEMINI.md` come from the selected language version but always keep the canonical file names. `.env` and the `set-env` loader are language-independent.
+The two rule documents `AGENTS.md` and `AGENTS.local.md` come from the selected language version but always keep the canonical file names. `.env` and the `set-env` loader are language-independent.
 
 The target workspace does not include this repository's README files, tests, or loader for the other platform, and it does not initialize a Git repository at the workspace root. Existing directories and files are preserved. The generator creates missing files only and does not overwrite rules, `.env`, loader scripts, or project content.
 
@@ -153,29 +151,20 @@ When the target workspace already contains `AGENTS.md`, the generator preserves 
 
 ## Rule document language
 
-This repository provides the four rule documents in both English and Simplified Chinese:
-
-| Language | Value | Template location |
-| --- | --- | --- |
-| English | `en` (default) | `templates/common/AGENTS.md` and the other three |
-| Simplified Chinese | `zh-CN` | Repository root: `AGENTS.cn.md`, `AGENTS.local.cn.md`, `CLAUDE.cn.md`, `GEMINI.cn.md` |
-
-The Chinese versions live in the repository root with a `cn` suffix and map one-to-one to the English templates:
+All workspace rule templates live in `templates/common`. English templates use canonical file names; Chinese templates use a `.cn.md` suffix:
 
 | English template | Chinese template |
 | --- | --- |
-| `templates/common/AGENTS.md` | `AGENTS.cn.md` |
-| `templates/common/AGENTS.local.md` | `AGENTS.local.cn.md` |
-| `templates/common/CLAUDE.md` | `CLAUDE.cn.md` |
-| `templates/common/GEMINI.md` | `GEMINI.cn.md` |
+| `templates/common/AGENTS.md` | `templates/common/AGENTS.cn.md` |
+| `templates/common/AGENTS.local.md` | `templates/common/AGENTS.local.cn.md` |
 
-`AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` in the repository root are this tool repository's own agent rules, not templates for generated workspaces; only the `.cn.md` files are templates.
+`set-workspace` selects English by default. Selecting `zh-CN` uses the Chinese templates in the same directory. Both languages produce canonical file names, so generated workspaces never receive `.cn.md` files. `env.template` and the platform loaders are shared by both languages.
 
-Both versions express the same rules: heading structure, constraint strength, and boundaries correspond exactly; only the language differs. A generated workspace receives one language set only, always under the canonical file names (`AGENTS.md`, `AGENTS.local.md`, `CLAUDE.md`, `GEMINI.md`); `.cn.md` files never appear in a generated workspace.
+The repository root contains only one development instruction document, `AGENTS.md`, which governs maintenance of this tool. README files explain the repository's purpose, usage, and verification commands. To change generated workspace rules, update both language versions under `templates/common`.
 
-On success the generator prints `[language] rule documents: <value>` so the version in use is explicit. To change the language of an existing workspace, replace the four documents manually or generate a new workspace elsewhere; the generator does not overwrite existing files.
+Both languages express the same rules, with corresponding heading structure, constraint strength, and boundaries. Tests check template locations and heading counts and verify generation in both languages.
 
-Whenever one language version changes, update the other one in the same change and keep the heading structure identical. `tests/test-public-contract.sh` verifies that both sides have the same number of headings.
+On success the generator prints `[language] rule documents: <value>`. Existing workspace files are preserved. To switch languages, replace the rule files manually or generate a workspace in another directory.
 
 ## Rule hierarchy
 
@@ -187,7 +176,6 @@ Rule files have separate scopes:
 | Workspace `AGENTS.local.md` | Machine paths, the project map, organization workflows, and environment constraints |
 | Project `AGENTS.md` | Project build, test, architecture, and coding requirements |
 | Module `AGENTS.md` | Local constraints for a specific module or directory |
-| `CLAUDE.md` / `GEMINI.md` | Direct their tools to shared rules without duplicating policy text |
 
 Both language versions provide the identical hierarchy; a workspace contains the documents of one language only.
 
