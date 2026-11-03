@@ -74,7 +74,7 @@ for %%F in (AGENTS.md AGENTS.local.md) do (
 )
 %SystemRoot%\System32\findstr.exe /c:"AGENTS.local.md" "%WORKSPACE_PARENT%\workspace-zh\AGENTS.md" >nul || goto :fail
 %SystemRoot%\System32\findstr.exe /c:"git rebase" "%WORKSPACE_PARENT%\workspace-zh\AGENTS.md" >nul || goto :fail
-%SystemRoot%\System32\findstr.exe /c:"Rule precedence" "%WORKSPACE_PARENT%\workspace-zh\AGENTS.md" >nul && goto :fail
+%SystemRoot%\System32\findstr.exe /c:"## 1. Scope and rule loading" "%WORKSPACE_PARENT%\workspace-zh\AGENTS.md" >nul && goto :fail
 for %%F in (CLAUDE.md GEMINI.md) do (
     if exist "%WORKSPACE_PARENT%\workspace-zh\%%F" goto :fail
 )
@@ -86,7 +86,7 @@ set "STAGE=explicit English"
 call "%TOOL_DIR%\set-workspace.bat" "%WORKSPACE_PARENT%" "workspace-en" "en" >nul || goto :fail
 fc /b "%WORKSPACE_PARENT%\workspace-en\AGENTS.md" "%TOOL_DIR%\templates\common\AGENTS.md" >nul
 if errorlevel 1 goto :fail
-%SystemRoot%\System32\findstr.exe /c:"Rule precedence" "%WORKSPACE_PARENT%\workspace-en\AGENTS.md" >nul || goto :fail
+%SystemRoot%\System32\findstr.exe /c:"## 1. Scope and rule loading" "%WORKSPACE_PARENT%\workspace-en\AGENTS.md" >nul || goto :fail
 set "STAGE=interactive zh-CN"
 >"%CASE_DIR%\interactive-zh-input.txt" (
     echo %WORKSPACE_PARENT%
